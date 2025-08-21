@@ -52,6 +52,22 @@ A customizable hero slider component for showcasing products, promotions, or bra
 - **Smooth Transitions**: Professional slide animations
 - **Theme Integration**: Seamlessly integrates with existing Shopify themes
 
+### 3. Hero Custom Slider V2
+**Location:** `shopify SLider/V2/hero-custom-slider.liquid`
+
+An accessible, responsive hero slider with autoplay, swipe, keyboard navigation, and dot indicators.
+
+#### Features:
+- **Desktop/Mobile Images**: Separate image pickers (1920×600 desktop, 750×1000 mobile)
+- **Autoplay**: 5s interval with smooth transitions
+- **Swipe Gestures**: Touch and mouse drag support
+- **Keyboard Support**: Left/Right arrows to navigate
+- **Dots Navigation**: Clickable, ARIA-compliant indicators
+- **Accessibility**: Region, slide grouping, and tab roles with labels
+- **Performance**: Eager-load first slide; lazy-load others
+- **Responsive Layout**: Aspect ratios for desktop and mobile
+- **Optional Link**: Each slide can be clickable
+
 ---
 
 ## 🛠️ Installation
@@ -73,8 +89,10 @@ Shopify/
 ├── Rotating Announcement Bar/
 │   └── Rotating-announcement.liquid
 ├── shopify SLider/
-│   └── V1/
-│       ├── hero-custom-slider.css
+│   ├── V1/
+│   │   ├── hero-custom-slider.css
+│   │   └── hero-custom-slider.liquid
+│   └── V2/
 │       └── hero-custom-slider.liquid
 ├── .gitignore
 └── README.md
