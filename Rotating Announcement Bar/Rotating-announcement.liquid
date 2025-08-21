@@ -1,0 +1,184 @@
+{% schema %}
+{
+  "name": "Rotating Announcement",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "range",
+      "id": "bar_height",
+      "min": 30,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Bar Height",
+      "default": 50
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#7F70C7"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "number",
+      "id": "text_size",
+      "label": "Text Size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "cursor_color",
+      "label": "Cursor Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "typing_speed",
+      "min": 50,
+      "max": 500,
+      "step": 50,
+      "unit": "ms",
+      "label": "Typing Speed (Lower is faster)",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "rotation_period",
+      "min": 1000,
+      "max": 9000,
+      "step": 500,
+      "unit": "ms",
+      "label": "Rotation Period",
+      "default": 3000
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Announcement Text",
+          "default": "Free shipping within UAE for orders above 300 AED"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (Optional)",
+          "info": "Leave empty for text-only announcement"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rotating Announcement",
+      "blocks": [
+        { "type": "announcement" },
+        { "type": "announcement" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+.announcement-custom-bar {
+  height: {{ section.settings.bar_height }}px;
+  background-color: {{ section.settings.background_color }};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-align: center;
+}
+
+.announcement-slider {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.6s ease-in-out;
+  will-change: transform;
+}
+
+.announcement-slide {
+  height: {{ section.settings.bar_height }}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 0 1rem;
+  text-decoration: none;
+}
+.announcement-slide:hover {
+  text-decoration: underline;
+}
+</style>
+
+{% capture announcement_data %}
+[
+  {% for block in section.blocks %}
+    {% if forloop.first == false %}, {% endif %}
+    {
+      "text": {{ block.settings.text | json }},
+      "link": {{ block.settings.link | json }}
+    }
+  {% endfor %}
+]
+{% endcapture %}
+
+<div class="announcement-custom-bar" role="region" aria-live="polite" aria-atomic="true">
+  <div class="announcement-slider">
+    {% for block in section.blocks %}
+      {% assign link = block.settings.link %}
+      {% assign text = block.settings.text %}
+      {% if link != blank %}
+        <a href="{{ link }}" class="announcement-slide" style="color: {{ section.settings.text_color }}; font-size: {{ section.settings.text_size }}px;">{{ text }}</a>
+      {% else %}
+        <div class="announcement-slide" style="color: {{ section.settings.text_color }}; font-size: {{ section.settings.text_size }}px;">{{ text }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const slider = document.querySelector('.announcement-slider');
+  const slides = document.querySelectorAll('.announcement-slide');
+  const totalSlides = slides.length;
+  const period = {{ section.settings.rotation_period }};
+  let index = 0;
+
+  // Duplicate first slide for seamless loop
+  const clone = slides[0].cloneNode(true);
+  slider.appendChild(clone);
+
+  setInterval(() => {
+    index++;
+    slider.style.transform = `translateY(-${index * {{ section.settings.bar_height }} }px)`;
+
+    // Reset after last slide
+    if (index === totalSlides) {
+      setTimeout(() => {
+        slider.style.transition = 'none';
+        slider.style.transform = 'translateY(0)';
+        index = 0;
+        // Force reflow to restart transition
+        void slider.offsetWidth;
+        slider.style.transition = 'transform 0.6s ease-in-out';
+      }, 600);
+    }
+  }, period);
+});
+</script>

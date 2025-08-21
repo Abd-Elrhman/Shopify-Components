@@ -1,0 +1,146 @@
+{% schema %}
+{
+  "name": "Hero Custom Slider",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "hero_custom_slide",
+      "name": "Custom Slide",
+      "settings": [
+        {
+          "type": "text",
+          "id": "hero_slide_title",
+          "label": "Hero Slide Title",
+          "default": "Hero slide title"
+        },
+        {
+          "type": "text",
+          "id": "hero_slide_lead",
+          "label": "Hero Slide Lead",
+          "default": "Hero slide lead"
+        },
+        {
+          "type": "image_picker",
+          "id": "hero_slide_image",
+          "label": "Hero Slide Background Image"
+        },
+        {
+          "type": "color",
+          "id": "overlay_custom_color",
+          "label": "Overlay Custom Color",
+          "default": "#133156"
+        },
+        {
+          "type": "range",
+          "id": "overlay_custom_opacity",
+          "label": "Overlay Custom Opacity",
+          "min": 0,
+          "max": 1,
+          "step": 0.1,
+          "default": 0.7
+        },
+        {
+          "type": "url",
+          "id": "hero_slide_link",
+          "label": "Slide Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Custom Slider",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="custom-hero-slider">
+  <div class="hero-slides">
+    {% for block in section.blocks %}
+      <div class="hero-slide">
+        {% if block.settings.hero_slide_link %}
+          <a href="{{ block.settings.hero_slide_link }}" class="hero-slide-link">
+        {% endif %}
+        
+        <h1 class="hero-slide__title">{{ block.settings.hero_slide_title }}</h1>
+        <p class="hero-slide__lead">{{ block.settings.hero_slide_lead }}</p>
+        <div class="overlay--custom" style="background-color: {{ block.settings.overlay_custom_color }}; opacity: {{ block.settings.overlay_custom_opacity }};"></div>
+        
+        {% if block.settings.hero_slide_image %}
+          <img class="responsive-slide" 
+            src="{{ block.settings.hero_slide_image | img_url: '1920x' }}" 
+            alt="{{ block.settings.hero_slide_title }}">
+        {% endif %}
+        
+        {% if block.settings.hero_slide_link %}
+          </a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  <button class="prev-slide">Prev</button>
+  <button class="next-slide">Next</button>
+  <div class="slider-dots"></div>
+</div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const slides = document.querySelectorAll('.hero-slide');
+  const dotsContainer = document.querySelector('.slider-dots');
+  let currentIndex = 0;
+  const slideInterval = 5000; // Change slide every 5000ms (5 seconds)
+
+  function createDots() {
+    slides.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.classList.add('slider-dot');
+      dot.dataset.index = index;
+      dotsContainer.appendChild(dot);
+
+      dot.addEventListener('click', function() {
+        currentIndex = parseInt(this.dataset.index);
+        showSlide(currentIndex);
+      });
+    });
+  }
+
+  function updateDots() {
+    const dots = dotsContainer.querySelectorAll('.slider-dot');
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === currentIndex);
+    });
+  }
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.style.display = i === index ? 'block' : 'none';
+    });
+    updateDots();
+  }
+
+  function nextSlide() {
+    currentIndex = (currentIndex + 1) % slides.length;
+    showSlide(currentIndex);
+  }
+
+  // Initially show the first slide and create dots
+  showSlide(currentIndex);
+  createDots();
+
+  // Set an interval to auto-slide
+  setInterval(nextSlide, slideInterval);
+
+  // Previous and Next buttons functionality
+  document.querySelector('.prev-slide').addEventListener('click', function() {
+    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+    showSlide(currentIndex);
+  });
+
+  document.querySelector('.next-slide').addEventListener('click', function() {
+    nextSlide();
+  });
+});
+</script>
